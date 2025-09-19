@@ -75,14 +75,22 @@
       background: #148a2f;
     }
 
-    /* Responsive design */
-    @media (max-width: 900px) {
-      .container {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-      }
-      .container img{
-        display: none;
-      }
-    }
+/* desktop*/
+@media (min-width: 651px) {
+  .container {
+    flex-direction: row; 
+    gap: 40px;
+    align-items: stretch;
+  }
+
+  .container img, 
+  .form-container {
+    flex: 1; 
+  }
+
+  .form-container {
+    max-width: 500px;
+    position: static; 
+    background: white;
+  }
+}
