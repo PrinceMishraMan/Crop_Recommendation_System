@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title> Kishan Mitar Login </title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1608889175740-fc5c04f94357?ixlib=rb-4.0.3&auto=format&fit=crop&w=1280&q=80') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 400px;
+      margin: 100px auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 30px 25px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .container h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #2e7d32;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      color: #2e7d32;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background-color: #4caf50;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #388e3c;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        margin: 60px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="container">
+    <h2>🌾Kishan Mitar Login</h2>
+    <form action="#" method="post">
+      <label for="name">👤 Name</label>
+      <input type="text" id="name" name="name" placeholder="Enter your name" required />
+
+      <label for="phone">📱 Phone Number</label>
+      <input type="tel" id="phone" name="phone" placeholder="Enter phone number" pattern="[0-9]{10}" required />
+
+      <label for="password">🔐 Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter password" required />
+
+      <input type="submit" value="Login" />
+    </form>
+
+    <div class="footer">
+      Don't have an account? <a href="#" style="color: #2e7d32; text-decoration: none;">Register</a>
+    </div>
+  </div>
+</body>
+</html>
