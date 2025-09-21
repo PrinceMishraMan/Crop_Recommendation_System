@@ -10,8 +10,9 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     int_features = [float(x) for x in request.form.values()]
-    final_features = [np.array(int_features)]
-    prediction = model.predict(final_features)
+    val = np.array(int_features).reshape(1, -1)
+    scaled_val = sc.transform(val)
+    prediction = model.predict(scaled_val)
     output = prediction[0]
     return render_template('index.html', prediction_text='Recommended Crop is: {}'.format(output))
 
@@ -32,4 +33,5 @@ def login():
 if __name__ == "__main__":
 
     app.run(debug=True)
+
 
