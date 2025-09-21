@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fertilizer & Pesticide Market Rates</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #2c3e50;
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 18px;
+    }
+    .note {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 15px;
+      background: #fff8dc;
+      padding: 10px;
+      border-left: 5px solid #f39c12;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 8px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    thead {
+      background-color: #f1f1f1;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    tbody tr:hover {
+      background-color: #e9f7ef;
+    }
+    td:nth-child(3),
+    td:nth-child(4),
+    td:nth-child(5) {
+      color: green;
+      font-weight: bold;
+    }
+
+    /* MOBILE STACKED TABLE */
+    @media (max-width: 700px) {
+      table, thead, tbody, tr, th, td {
+        display: block;
+      }
+      thead {
+        display: none;
+      }
+      tr {
+        margin-bottom: 18px;
+        background: #fff;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(44,62,80,0.04);
+        padding: 0;
+        border: 1px solid #ececec;
+      }
+      td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding: 12px 8px 12px 44%;
+        text-align: left;
+        min-height: 38px;
+        word-break: break-word;
+        white-space: normal;
+      }
+      td:last-child {
+        border-bottom: none;
+      }
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        top: 12px;
+        width: 40%;
+        font-weight: bold;
+        color: #555;
+        white-space: normal;
+        word-break: break-word;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>खाद / कीटनाशक बाज़ार भाव (Market Rates - September 2025)</h2>
+    <p class="note">
+      🧪 यह जानकारी बाजार से प्राप्त दरों पर आधारित है | अलग-अलग क्षेत्रों में दाम में अंतर हो सकता है |
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>उत्पाद<br>Product</th>
+          <th>कंपनी<br>Company</th>
+          <th>न्यूनतम भाव<br>Min Price (₹/L or ₹/Kg)</th>
+          <th>अधिकतम भाव<br>Max Price (₹/L or ₹/Kg)</th>
+          <th>औसत भाव<br>Avg Price (₹/L or ₹/Kg)</th>
+          <th>भाव तिथि<br>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="उत्पाद (Product)">Urea</td>
+          <td data-label="कंपनी (Company)">IFFCO</td>
+          <td data-label="न्यूनतम भाव (Min Price)">₹260</td>
+          <td data-label="अधिकतम भाव (Max Price)">₹270</td>
+          <td data-label="औसत भाव (Avg Price)">₹265</td>
+          <td data-label="भाव तिथि (Date)">19/09/2025</td>
+        </tr>
+        <tr>
+          <td data-label="उत्पाद (Product)">DAP</td>
+          <td data-label="कंपनी (Company)">Coromandel</td>
+          <td data-label="न्यूनतम भाव (Min Price)">₹1,250</td>
+          <td data-label="अधिकतम भाव (Max Price)">₹1,400</td>
+          <td data-label="औसत भाव (Avg Price)">₹1,330</td>
+          <td data-label="भाव तिथि (Date)">19/09/2025</td>
+        </tr>
+        <tr>
+          <td data-label="उत्पाद (Product)">Potash (MOP)</td>
+          <td data-label="कंपनी (Company)">Rashtriya Chemicals</td>
+          <td data-label="न्यूनतम भाव (Min Price)">₹1,050</td>
+          <td data-label="अधिकतम भाव (Max Price)">₹1,150</td>
+          <td data-label="औसत भाव (Avg Price)">₹1,100</td>
+          <td data-label="भाव तिथि (Date)">19/09/2025</td>
+        </tr>
+        <tr>
+          <td data-label="उत्पाद (Product)">Bavistin</td>
+          <td data-label="कंपनी (Company)">BASF</td>
+          <td data-label="न्यूनतम भाव (Min Price)">₹620</td>
+          <td data-label="अधिकतम भाव (Max Price)">₹700</td>
+          <td data-label="औसत भाव (Avg Price)">₹660</td>
+          <td data-label="भाव तिथि (Date)">19/09/2025</td>
+        </tr>
+        <tr>
+          <td data-label="उत्पाद (Product)">Glyphosate</td>
+          <td data-label="कंपनी (Company)">Bayer</td>
+          <td data-label="न्यूनतम भाव (Min Price)">₹750</td>
+          <td data-label="अधिकतम भाव (Max Price)">₹820</td>
+          <td data-label="औसत भाव (Avg Price)">₹785</td>
+          <td data-label="भाव तिथि (Date)">19/09/2025</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
