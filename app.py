@@ -22,6 +22,14 @@ def crop():
 @app.route('/crop_pest')
 def pest():
     return render_template('pest_pred.html')
+
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
 if __name__ == "__main__":
 
     app.run(debug=True)
+
