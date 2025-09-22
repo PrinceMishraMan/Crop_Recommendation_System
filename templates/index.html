@@ -1,52 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crop Recommendation System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: #f4f6f9;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(90deg, #fdb813, #ffffff, #2c6d2c);
+      padding: 15px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 22px;
+      color: #001f66;
+    }
+
+    nav {
+      background: #001f66;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    nav ul li a:hover {
+      color: #ffcc33;
+    }
+
+    select {
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 14px;
+      border: none;
+    }
+
+    .heading {
+      margin: 40px auto;
+      font-size: 26px;
+      font-weight: bold;
+      background: #061774;
+      color: #f1f2f6;
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 600px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      padding: 30px;
+      gap: 30px;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      background: #fff;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+      flex: 1;
+      min-width: 280px;
+      max-width: 500px;
+      transition: transform 0.3s ease;
+    }
+
+    .box:hover {
+      transform: translateY(-5px);
+    }
+
+    .box h2 {
+      color: #001f66;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .box form label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .box form input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border 0.3s ease;
+    }
+
+    .box form input:focus {
+      border: 1px solid #4caf50;
+      outline: none;
+    }
+
+    .box form button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 12px;
+      background: #4caf50;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .box form button:hover {
+      background: #397d3c;
+    }
+
+    .box hr {
+      border-top: 3px solid #ff9933;
+      margin: 15px 0;
+    }
+
+    footer {
+      background: #001f66;
+      color: white;
+      padding: 30px 20px;
+      margin-top: 40px;
+    }
+
+    .footer-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-bottom: 15px;
+    }
+
+    .footer-box {
+      min-width: 200px;
+      flex: 1;
+    }
+
+    footer h3 {
+      margin-bottom: 10px;
+      color: #ff9933;
+      font-size: 18px;
+    }
+
+    footer ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    footer ul li {
+      margin: 8px 0;
+    }
+
+    footer ul li a {
+      color: white;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    footer ul li a:hover {
+      color: #ff9933;
+    }
+
+    .copyright {
+      text-align: center;
+      font-size: 13px;
+      color: #cccccc;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .heading {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      nav ul {
+        gap: 10px;
+      }
+
+      nav ul li a {
+        font-size: 14px;
+      }
+
+      .heading {
+        font-size: 20px;
+        padding: 10px;
+      }
+
+      .box {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-     <header>Crop Recommendation System</header>
+
+  <header>
+    <h1>Government of India <br> Ministry of Agriculture & Farmers' Welfare</h1>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Schemes</a></li>
+      <li><a href="#">Services</a></li>
+      <li><a href="#">Data & Analytics</a></li>
+      <li><a href="#">Contact Us</a></li>
+      <li><a href="#">Login</a></li>
+    </ul>
+    <select>
+      <option>English</option>
+      <option>Hindi</option>
+      <option>Others</option>
+    </select>
+  </nav>
+
+  <div class="heading"><h2>🌾 Crop Recommendation System</h2></div>
 
   <div class="container">
-
-    <img src="https://kj1bcdn.b-cdn.net/media/25217/farming.png" alt="Crops">
-
-    <div class="form-container">
-      <h2>Crop Recommendation</h2>
-      <form action="/predict" method="post">
+    <div class="box">
+      <h2>Enter Soil Parameters</h2>
+      <form>
+        <hr>
         <label for="nitrogen">Nitrogen:</label>
-        <input type="number" id="nitrogen" name="nitrogen" placeholder="Enter Nitrogen value" required>
+        <input type="number" id="nitrogen" placeholder="Enter Nitrogen value" required>
 
         <label for="phosphorus">Phosphorus:</label>
-        <input type="number" id="phosphorus" name="phosphorus" placeholder="Enter Phosphorus value" required>
+        <input type="number" id="phosphorus" placeholder="Enter Phosphorus value" required>
 
         <label for="potassium">Potassium:</label>
-        <input type="number" id="potassium" name="potassium" placeholder="Enter Potassium value" required>
+        <input type="number" id="potassium" placeholder="Enter Potassium value" required>
 
         <label for="temperature">Temperature (°C):</label>
-        <input type="decimal" id="temperature" name="temperature" placeholder="Enter Temperature" required>
+        <input type="number" id="temperature" placeholder="Enter Temperature" required>
 
         <label for="humidity">Humidity (%):</label>
-        <input type="decimal" id="humidity" name="humidity" placeholder="Enter Humidity" required>
+        <input type="number" id="humidity" placeholder="Enter Humidity" required>
 
         <label for="ph">pH:</label>
-        <input type="decimal" id="ph" name="ph" placeholder="Enter pH value" required>
+        <input type="number" id="ph" placeholder="Enter pH value" required>
 
-        <label for="rainfall">Rainfall:</label>
-        <input type="decimal" id="rainfall" name="rainfall" placeholder="Enter Rainfall" required>
+        <label for="rainfall">Rainfall (mm):</label>
+        <input type="number" id="rainfall" placeholder="Enter Rainfall" required>
 
-        <button type="submit">Predict the Crop</button>
+        <button type="submit">🌱 Predict the Crop</button>
       </form>
-        {% if prediction_text %}
-            <div class="result">
-                <h3>Recommended Crop:</h3>
-                <p>{{ prediction_text }}</p>
-            </div>
-        {% endif %}
+    </div>
+
+    <div class="box">
+      <h2>About This System</h2>
+      <hr>
+      <p>This AI-powered crop recommendation system analyzes soil and environmental parameters to suggest optimal crops for cultivation.</p><br>
+      <p>Developed by the Ministry of Agriculture & Farmers' Welfare, it helps farmers make informed decisions to maximize yield.</p>
+    </div>
+
+    <div class="box">
+      <h2>Government Initiatives</h2>
+      <hr>
+      <ul>
+        <li>National Mission for Sustainable Agriculture</li>
+        <li>Pradhan Mantri Krishi Sinchai Yojana</li>
+        <li>Soil Health Card Scheme</li>
+        <li>Paramparagat Krishi Vikas Yojana</li>
+        <li>National Agriculture Market (e-NAM)</li>
+      </ul>
     </div>
   </div>
+
+  <footer>
+    <div class="footer-container">
+      <div class="footer-box">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="#">PMO</a></li>
+          <li><a href="#">MyGov</a></li>
+          <li><a href="#">Digital India</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-box">
+        <h3>Related Portals</h3>
+        <ul>
+          <li><a href="#">Soil Health Card Portal</a></li>
+          <li><a href="#">National Agriculture Market (eNAM)</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-box">
+        <h3>Contact Us</h3>
+        <p>Ministry of Agriculture</p>
+        <p>Krishi Bhavan, New Delhi</p>
+      </div>
+    </div>
+    <p class="copyright">© 2025 Government of India. All Rights Reserved.</p>
+  </footer>
 
 </body>
 </html>
