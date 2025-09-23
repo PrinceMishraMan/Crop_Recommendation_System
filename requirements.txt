@@ -4,3 +4,5 @@ gunicorn
 scikit-learn
 pandas
 joblib
+tensorflow
+keras
