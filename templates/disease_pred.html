@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Disease Detector</title>
+    <link rel="stylesheet" href="static/style2.css">
+</head>
+<body>
+    <!--Image Uploader Box-->
+    <div class="container">
+        <h1>Crop Disease Detector</h1>
+        <form action="/disease" method="post" enctype="multipart/form-data">
+        <div class="upload-area">
+            <input type="file" id="imageInput" name="image" accept="image/*">
+            <label for="imageInput" class="our-file-upload">
+                Click to Upload Image
+            </label>
+        </div>
+        <div class="preview-area">
+            <img id="imagePreview" src="#" alt="Image Preview" style="display: none;">
+        </div>
+        <button type="submit">Predict Disease</button>
+        </form>
+        <p class="result-placeholder">
+            {% if disease_text %}
+                <div class="result">
+                    <h3>Predicted Disease:</h3>
+                    <p>{{ disease_text }}</p>
+                </div>
+            {% endif %}
+        </p>
+    </div>
+    <script src=""></script>
+</body>
+</html>
