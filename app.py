@@ -7,7 +7,7 @@ from keras.preprocessing import image
 app = Flask(__name__)
 model = pickle.load(open('model.pkl', 'rb'))
 sc = joblib.load(open('scaler.joblib', 'rb'))
-cnn = tf.keras.models.load_model('C:\\Users\\princ\\Downloads\\Programs\\Crop Recommendation System\\my_cnn_model_2.keras')
+cnn = tf.keras.models.load_model('my_cnn_model_2.keras')
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -66,6 +66,7 @@ def login():
 if __name__ == "__main__":
 
     app.run(debug=True)
+
 
 
 
