@@ -270,28 +270,28 @@
   <div class="container">
     <div class="box">
       <h2>Enter Soil Parameters</h2>
-      <form action='/predict', method="POST">
+      <form action='/predict' method="POST">
         <hr>
         <label for="nitrogen">Nitrogen:</label>
-        <input type="number" id="nitrogen" placeholder="Enter Nitrogen value" required>
+        <input type="number" id="nitrogen" name="nitrogen" placeholder="Enter Nitrogen value" required>
 
         <label for="phosphorus">Phosphorus:</label>
-        <input type="number" id="phosphorus" placeholder="Enter Phosphorus value" required>
+        <input type="number" id="phosphorus" name="phosphorus" placeholder="Enter Phosphorus value" required>
 
         <label for="potassium">Potassium:</label>
-        <input type="number" id="potassium" placeholder="Enter Potassium value" required>
+        <input type="number" id="potassium" name="potassium"placeholder="Enter Potassium value" required>
 
         <label for="temperature">Temperature (°C):</label>
-        <input type="number" id="temperature" placeholder="Enter Temperature" required>
+        <input type="number" id="temperature" name="temperature" placeholder="Enter Temperature" required>
 
         <label for="humidity">Humidity (%):</label>
-        <input type="number" id="humidity" placeholder="Enter Humidity" required>
+        <input type="number" id="humidity"  name="humidity"placeholder="Enter Humidity" required>
 
         <label for="ph">pH:</label>
-        <input type="number" id="ph" placeholder="Enter pH value" required>
+        <input type="number" id="ph" name="ph" placeholder="Enter pH value" required>
 
         <label for="rainfall">Rainfall (mm):</label>
-        <input type="number" id="rainfall" placeholder="Enter Rainfall" required>
+        <input type="number" id="rainfall" name="rainfall" placeholder="Enter Rainfall" required>
 
         <button type="submit">🌱 Predict the Crop</button>
       </form>
