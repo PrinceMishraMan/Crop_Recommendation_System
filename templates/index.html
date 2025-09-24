@@ -295,6 +295,13 @@
 
         <button type="submit">🌱 Predict the Crop</button>
       </form>
+
+      {% if prediction_text %}
+            <div class="result">
+                <h3>Recommended Crop:</h3>
+                <p>{{ prediction_text }}</p>
+            </div>
+      {% endif %}
     </div>
 
     <div class="box">
