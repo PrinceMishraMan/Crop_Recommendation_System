@@ -14,12 +14,21 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    int_features = [float(x) for x in request.form.values()]
-    val = np.array(int_features).reshape(1, -1)
-    scaled_val = sc.transform(val)
-    prediction = model.predict(scaled_val)
-    output = prediction[0]
-    return render_template('index.html', prediction_text='Recommended Crop is: {}'.format(output))
+    if request.method == 'POST':
+        nitrogen = request.form.get('nitrogen')
+        phosphorus = request.form.get('phosphorus')
+        potassium = request.form.get('potassium')
+        temperature = request.form.get('temperature')
+        humidity = request.form.get('humidity')
+        ph = request.form.get('ph')
+        rainfall = request.form.get('rainfall')
+        int_features = [nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall]
+        val = np.array(int_features).reshape(1, -1)
+        scaled_val = sc.transform(val)
+        prediction = model.predict(scaled_val)
+        output = prediction[0]
+        return render_template('index.html', prediction_text='Recommended Crop is: {}'.format(output))
+    return render_template('index.html')
 
 @app.route('/disease', methods=['GET', 'POST'])
 def disease():
@@ -66,6 +75,7 @@ def login():
 if __name__ == "__main__":
 
     app.run(debug=True)
+
 
 
 
