@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template
+import requests
 import numpy as np
 import pickle
 import joblib
@@ -18,11 +19,40 @@ def predict():
         nitrogen = request.form.get('nitrogen')
         phosphorus = request.form.get('phosphorus')
         potassium = request.form.get('potassium')
-        temperature = request.form.get('temperature')
-        humidity = request.form.get('humidity')
+        lat = request.form.get('latitude')
+        lon = request.form.get('longitude')
+        temperature = None
+        humidity = None
         ph = request.form.get('ph')
-        rainfall = request.form.get('rainfall')
-        int_features = [nitrogen, phosphorus, potassium, temperature, humidity, ph, rainfall]
+        rainfall = None
+        if lat and lon:
+            try:
+                weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,precipitation"
+                weather_response = requests.get(weather_url).json()
+                
+                temperature = weather_response['current']['temperature_2m']
+                humidity = weather_response['current']['relative_humidity_2m']
+                rainfall = weather_response['current']['precipitation']
+            except Exception as e:
+                print(f"Error fetching from Open-Meteo API: {e}")
+        
+        if temperature is None or humidity is None or rainfall is None:
+            temperature = request.form.get('temperature')
+            humidity = request.form.get('humidity')
+            rainfall = request.form.get('rainfall')
+            
+            if not temperature or not humidity or not rainfall:
+                return render_template('index.html', prediction_text="Error: Missing weather/rainfall data. Please allow location access or type it in manually.")
+        
+        int_features = [
+            float(nitrogen), 
+            float(phosphorus), 
+            float(potassium), 
+            float(temperature),
+            float(humidity),
+            float(ph), 
+            float(rainfall)
+        ]
         val = np.array(int_features).reshape(1, -1)
         scaled_val = sc.transform(val)
         prediction = model.predict(scaled_val)
