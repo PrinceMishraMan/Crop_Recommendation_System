@@ -128,7 +128,7 @@
       outline: none;
     }
 
-    .box form button {
+    .box form button[type="submit"] {
       margin-top: 10px;
       width: 100%;
       padding: 12px;
@@ -142,13 +142,60 @@
       transition: background 0.3s ease;
     }
 
-    .box form button:hover {
+    .box form button[type="submit"]:hover {
       background: #397d3c;
     }
 
     .box hr {
       border-top: 3px solid #ff9933;
       margin: 15px 0;
+    }
+
+    /* New styles for the location button and results */
+    .location-btn {
+      margin-top: 5px;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 10px;
+      background: #001f66;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .location-btn:hover {
+      background: #003399;
+    }
+
+    .location-status {
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+      display: none;
+      margin-bottom: 15px;
+    }
+
+    .result-card {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e8f5e9;
+      border-left: 5px solid #4caf50;
+      border-radius: 8px;
+    }
+
+    .result-card h3 {
+      color: #2e7d32;
+      margin-bottom: 5px;
+    }
+
+    .result-card p {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1b5e20;
     }
 
     footer {
@@ -206,38 +253,16 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
-      nav {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .container {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .heading {
-        font-size: 22px;
-      }
+      nav { flex-direction: column; align-items: flex-start; }
+      .container { flex-direction: column; align-items: center; }
+      .heading { font-size: 22px; }
     }
 
     @media (max-width: 480px) {
-      nav ul {
-        gap: 10px;
-      }
-
-      nav ul li a {
-        font-size: 14px;
-      }
-
-      .heading {
-        font-size: 20px;
-        padding: 10px;
-      }
-
-      .box {
-        padding: 20px;
-      }
+      nav ul { gap: 10px; }
+      nav ul li a { font-size: 14px; }
+      .heading { font-size: 20px; padding: 10px; }
+      .box { padding: 20px; }
     }
   </style>
 </head>
@@ -272,35 +297,56 @@
       <h2>Enter Soil Parameters</h2>
       <form action='/predict' method="POST">
         <hr>
-        <label for="nitrogen">Nitrogen:</label>
+        <label for="nitrogen">Nitrogen (N):</label>
         <input type="number" id="nitrogen" name="nitrogen" placeholder="Enter Nitrogen value" required>
 
-        <label for="phosphorus">Phosphorus:</label>
+        <label for="phosphorus">Phosphorus (P):</label>
         <input type="number" id="phosphorus" name="phosphorus" placeholder="Enter Phosphorus value" required>
 
-        <label for="potassium">Potassium:</label>
-        <input type="number" id="potassium" name="potassium"placeholder="Enter Potassium value" required>
+        <label for="potassium">Potassium (K):</label>
+        <input type="number" id="potassium" name="potassium" placeholder="Enter Potassium value" required>
 
-        <label for="temperature">Temperature (°C):</label>
-        <input type="number" id="temperature" name="temperature" placeholder="Enter Temperature" required>
+        <label for="ph">pH Level:</label>
+        <input type="number" id="ph" name="ph" step="0.1" placeholder="Enter soil pH value" required>
 
-        <label for="humidity">Humidity (%):</label>
-        <input type="number" id="humidity"  name="humidity"placeholder="Enter Humidity" required>
+        <hr>
+        
+        <button type="button" class="location-btn" id="getLocationBtn">
+          📍 Auto-fill Weather & Rainfall via Location
+        </button>
+        <p class="location-status" id="location-status"></p>
 
-        <label for="ph">pH:</label>
-        <input type="number" id="ph" name="ph" placeholder="Enter pH value" required>
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
 
-        <label for="rainfall">Rainfall (mm):</label>
-        <input type="number" id="rainfall" name="rainfall" placeholder="Enter Rainfall" required>
+        <div id="manual-weather">
+          <label for="temperature">Temperature (°C):</label>
+          <input type="number" id="temperature" name="temperature" step="0.1" placeholder="Enter Temperature" required>
 
+          <label for="humidity">Humidity (%):</label>
+          <input type="number" id="humidity" name="humidity" step="0.1" placeholder="Enter Humidity" required>
+          
+          <label for="rainfall">Rainfall (mm):</label>
+          <input type="number" id="rainfall" name="rainfall" step="0.1" placeholder="Enter Rainfall" required>
+        </div>
+
+        <hr>
         <button type="submit">🌱 Predict the Crop</button>
       </form>
 
       {% if prediction_text %}
-            <div class="result">
-                <h3>Recommended Crop:</h3>
-                <p>{{ prediction_text }}</p>
-            </div>
+        <div class="result-card">
+            <h3>Recommended Crop:</h3>
+            <p>{{ prediction_text }}</p>
+            
+            {% if fetched_temp and fetched_hum and fetched_rain %}
+              <hr style="margin: 10px 0; border-top: 1px solid #c8e6c9;">
+              <small style="color: #444; font-size: 12px;">
+                <i>*Prediction based on local weather API data:<br>
+                <b>Temp:</b> {{ fetched_temp }}°C | <b>Humidity:</b> {{ fetched_hum }}% | <b>Rainfall:</b> {{ fetched_rain }}mm</i>
+              </small>
+            {% endif %}
+        </div>
       {% endif %}
     </div>
 
@@ -351,6 +397,55 @@
     </div>
     <p class="copyright">© 2025 Government of India. All Rights Reserved.</p>
   </footer>
+
+  <script>
+    document.getElementById('getLocationBtn').addEventListener('click', function() {
+      const btn = this;
+      const statusText = document.getElementById('location-status');
+      const latInput = document.getElementById('latitude');
+      const lonInput = document.getElementById('longitude');
+      const manualWeather = document.getElementById('manual-weather');
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      btn.innerText = "⏳ Requesting permission...";
+      btn.disabled = true;
+      statusText.style.display = "block";
+      statusText.innerText = "Please allow location access in your browser prompt...";
+
+      navigator.geolocation.getCurrentPosition(
+        // Success
+        function(position) {
+          latInput.value = position.coords.latitude;
+          lonInput.value = position.coords.longitude;
+          
+          btn.innerText = "✅ Location secured!";
+          btn.style.background = "#4caf50"; 
+          statusText.style.color = "green";
+          statusText.innerText = "Weather & Rainfall will be fetched automatically upon prediction.";
+          
+          // Hide manual inputs to keep the form clean
+          manualWeather.style.display = "none";
+          
+          // Remove 'required' attributes so the hidden form can still submit properly
+          document.getElementById('temperature').removeAttribute('required');
+          document.getElementById('humidity').removeAttribute('required');
+          document.getElementById('rainfall').removeAttribute('required');
+        },
+        // Error
+        function(error) {
+          btn.innerText = "📍 Auto-fill Weather & Rainfall via Location";
+          btn.disabled = false;
+          statusText.style.color = "red";
+          statusText.innerText = "Location denied or unavailable. Please enter weather manually.";
+          manualWeather.style.display = "block";
+        }
+      );
+    });
+  </script>
 
 </body>
 </html>
