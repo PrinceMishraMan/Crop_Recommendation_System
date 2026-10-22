@@ -7,9 +7,9 @@ import tensorflow as tf
 from PIL import Image
 import tflite_runtime.interpreter as tflite
 app = Flask(__name__)
-model = pickle.load(open('model.pkl', 'rb'))
-sc = joblib.load(open('scaler.joblib', 'rb'))
-interpreter = tflite.Interpreter(model_path="plant_disease_model.tflite")
+model = joblib.load(open('models/model.joblib', 'rb'))
+sc = joblib.load(open('models/scaler.joblib', 'rb'))
+interpreter = tflite.Interpreter(model_path="models/plant_disease_model.tflite")
 interpreter.allocate_tensors()
 input_idx = interpreter.get_input_details()[0]['index']
 output_idx = interpreter.get_output_details()[0]['index']
