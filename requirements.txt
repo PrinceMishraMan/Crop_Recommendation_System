@@ -7,3 +7,5 @@ joblib
 tensorflow
 keras
 requests
+Pillow
+tflite-runtime
