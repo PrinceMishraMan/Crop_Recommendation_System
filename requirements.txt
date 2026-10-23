@@ -4,8 +4,6 @@ gunicorn
 scikit-learn
 pandas
 joblib
-tensorflow
-keras
 requests
 Pillow
-tflite-runtime
+tensorflow-cpu
