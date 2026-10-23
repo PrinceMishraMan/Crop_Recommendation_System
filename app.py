@@ -1,11 +1,9 @@
 from flask import Flask, request, render_template
 import requests
 import numpy as np
-import pickle
 import joblib
-import tensorflow as tf
 from PIL import Image
-import tflite_runtime.interpreter as tflite
+import tensorflow.lite as tflite
 app = Flask(__name__)
 model = joblib.load(open('models/model.joblib', 'rb'))
 sc = joblib.load(open('models/scaler.joblib', 'rb'))
@@ -104,17 +102,12 @@ def crop():
 def pest():
     return render_template('pest_pred.html')
 
-
 @app.route('/login')
 def login():
     return render_template('login.html')
 
-
 if __name__ == "__main__":
-
     app.run(debug=True)
-
-
 
 
 
