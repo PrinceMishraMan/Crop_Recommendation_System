@@ -81,17 +81,53 @@ def predict():
 @app.route('/disease', methods=['GET', 'POST'])
 def disease():
     if request.method == 'POST':
-        file = request.files['image']
-        img = Image.open(file).convert('RGB')
-        img = img.resize((128, 128))
-        img_array = np.array(img, dtype=np.float32) / 255.0
-        img_array = np.expand_dims(img_array, axis=0)
-        interpreter.set_tensor(input_idx, img_array)
-        interpreter.invoke()
-        result = interpreter.get_tensor(output_idx)
-        predicted_class = class_names[np.argmax(result)]
-        print(predicted_class)
-        return render_template('disease_pred.html', disease_text='Predicted Disease is: {}'.format(predicted_class))
+        if 'image' not in request.files or request.files['image'].filename == '':
+            return render_template('disease_pred.html', error_msg="Please upload a valid image.")
+
+        img_file = request.files['image']
+        filename = secure_filename(img_file.filename)
+        img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        img_file.save(img_path)
+
+        img = image.load_img(img_path, target_size=(128, 128))
+        img_arr = image.img_to_array(img) / 255.0
+        img_arr = np.expand_dims(img_arr, axis=0)
+        
+        predictions = cnn.predict(img_arr)
+        predicted_idx = np.argmax(predictions)
+        confidence = float(predictions[0][predicted_idx])
+        raw_predicted_class = CLASS_NAMES[predicted_idx]
+
+        crop_name, disease_name = parse_disease_prediction(raw_predicted_class)
+
+        lat = request.form.get('latitude')
+        lon = request.form.get('longitude')
+        language = request.form.get('language', 'English')
+        weather_info = get_live_weather(lat, lon)
+
+        advisory_text = None
+        if "healthy" not in disease_name.lower():
+            try:
+                advisory_text = generate_prescription(
+                    crop=crop_name,
+                    disease=disease_name,
+                    confidence=confidence,
+                    weather=weather_info,
+                    language=language
+                )
+            except Exception as e:
+                print(f"[-] RAG Generation Error: {e}")
+                advisory_text = "Unable to generate university advisory at this time."
+
+        return render_template(
+            'disease_pred.html',
+            crop=crop_name,
+            disease=disease_name,
+            confidence=f"{confidence * 100:.1f}%",
+            advisory=advisory_text,
+            disease_text=f"{crop_name} - {disease_name}"
+        )
+
     return render_template('disease_pred.html')
 
 @app.route('/crop_pred')
