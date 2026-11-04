@@ -7,3 +7,8 @@ joblib
 requests
 Pillow
 tensorflow-cpu
+python-dotenv
+Werkzeug
+chromadb
+sentence-transformers
+groq
