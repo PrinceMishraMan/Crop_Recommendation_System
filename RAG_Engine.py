@@ -1,10 +1,10 @@
-# rag_engine.py
 import os
 import chromadb
 from chromadb.utils import embedding_functions
 from groq import Groq
+from pathlib import Path
+from dotenv import load_dotenv
 
-# 1. Initialize persistent ChromaDB vector store
 DB_PATH = "./kisan_rag_db"
 client = chromadb.PersistentClient(path=DB_PATH)
 
@@ -17,26 +17,17 @@ collection = client.get_collection(
     embedding_function=embedding_fn
 )
 
-# 2. Initialize LLM Client
-# Export your key in terminal: export GROQ_API_KEY="your_api_key_here"
-# rag_engine.py
-import os
-from pathlib import Path
-from dotenv import load_dotenv
-
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
 
 groq_api_key = os.getenv("GROQ_API_KEY")
 
 if not groq_api_key:
-    # If .env still fails, print out exact search path for debugging
     raise ValueError(f"GROQ_API_KEY is None. Searched in: {BASE_DIR / '.env'}")
 groq_client = Groq(api_key=groq_api_key)
 
 
 def retrieve_disease_context(crop: str, disease: str, top_k: int = 2) -> str:
-    """Retrieve authentic TNAU treatment guidelines from ChromaDB."""
     search_query = f"{crop} {disease} fungicide chemical dosage organic control measures"
     
     try:
@@ -49,7 +40,6 @@ def retrieve_disease_context(crop: str, disease: str, top_k: int = 2) -> str:
         
         docs = results.get("documents", [[]])[0]
         if not docs:
-            # Fallback without crop filter if nothing returned
             fallback_results = collection.query(
                 query_texts=[search_query],
                 n_results=top_k
@@ -69,7 +59,6 @@ def generate_prescription(
     weather: dict, 
     language: str = "English"
 ) -> str:
-    """Combines retrieved context + live weather into a structured farmer prescription."""
     
     context_docs = retrieve_disease_context(crop, disease)
 
