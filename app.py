@@ -4,7 +4,18 @@ import numpy as np
 import joblib
 from PIL import Image
 import tensorflow.lite as tflite
+import os
+from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+
+from RAG_Engine import generate_prescription
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
+
+
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 model = joblib.load(open('models/model.joblib', 'rb'))
 sc = joblib.load(open('models/scaler.joblib', 'rb'))
 interpreter = tflite.Interpreter(model_path="models/plant_disease_model.tflite")
