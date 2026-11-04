@@ -16,12 +16,22 @@ load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-model = joblib.load(open('models/model.joblib', 'rb'))
-sc = joblib.load(open('models/scaler.joblib', 'rb'))
-interpreter = tflite.Interpreter(model_path="models/plant_disease_model.tflite")
-interpreter.allocate_tensors()
-input_idx = interpreter.get_input_details()[0]['index']
-output_idx = interpreter.get_output_details()[0]['index']
+
+
+model = None
+sc = None
+interpreter = None
+def load_models_lazily():
+    global model, sc, cnn
+    if interpreter is None:
+        print("Loading models into memory for the first time...")
+        model = joblib.load(open('models/model.joblib', 'rb'))
+        sc = joblib.load(open('models/scaler.joblib', 'rb'))
+        interpreter = tflite.Interpreter(model_path="models/plant_disease_model.tflite")
+        interpreter.allocate_tensors()
+        input_idx = interpreter.get_input_details()[0]['index']
+        output_idx = interpreter.get_output_details()[0]['index']
+        print("Models loaded successfully!")
 
 class_names = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy',
@@ -119,6 +129,8 @@ def disease():
     if request.method == 'POST':
         if 'image' not in request.files or request.files['image'].filename == '':
             return render_template('disease_pred.html', error_msg="Please upload a valid image.")
+
+        load_models_lazily()
 
         img_file = request.files['image']
         filename = secure_filename(img_file.filename)
