@@ -38,6 +38,31 @@ class_names = [
     'Tomato___Target_Spot', 'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus', 
     'Tomato___healthy'
 ]
+
+def parse_disease_prediction(raw_class: str):
+    if "___" in raw_class:
+        crop_part, disease_part = raw_class.split("___", 1)
+    else:
+        crop_part, disease_part = "Plant", raw_class
+
+    crop_clean = crop_part.replace("_", " ").strip()
+    disease_clean = disease_part.replace("_", " ").strip()
+    return crop_clean, disease_clean
+
+
+def get_live_weather(lat: str, lon: str) -> dict:
+    weather = {"temp": 27.0, "humidity": 65, "condition": "Normal"}
+    if lat and lon:
+        try:
+            weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,precipitation"
+            res = requests.get(weather_url, timeout=3.5).json()
+            weather["temp"] = res['current']['temperature_2m']
+            weather["humidity"] = res['current']['relative_humidity_2m']
+            weather["condition"] = "Rainy" if res['current']['precipitation'] > 0.1 else "Clear"
+        except Exception as e:
+            print(f"[-] Weather API fallback error: {e}")
+    return weather
+
 @app.route('/')
 def home():
     return render_template('index.html')
