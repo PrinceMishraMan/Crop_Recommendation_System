@@ -160,8 +160,8 @@ def run_scraper(output_file="tnau_knowledge.json"):
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(all_diseases, f, indent=2, ensure_ascii=False)
 
-    print(f"[✓] Extraction Complete! Total verified diseases indexed: {len(all_diseases)}")
-    print(f"[✓] Output written to {output_file}")
+    print(f"Extraction Complete! Total verified diseases indexed: {len(all_diseases)}")
+    print(f"Output written to {output_file}")
 
 if __name__ == "__main__":
     run_scraper()
