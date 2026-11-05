@@ -25,7 +25,7 @@ def load_models_lazily():
         print("Loading models into memory for the first time...")
         import joblib
         import numpy as np
-        import tflite_runtime.interpreter as tflite
+        import ai_edge_litert.interpreter as tflite
         
         # Load Crop Recommendation Models
         model = joblib.load(open(BASE_DIR / 'models/model.joblib', 'rb'))
