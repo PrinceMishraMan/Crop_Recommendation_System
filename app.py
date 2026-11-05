@@ -1,9 +1,5 @@
 from flask import Flask, request, render_template
 import requests
-import numpy as np
-import joblib
-from PIL import Image
-import tensorflow.lite as tflite
 import os
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -25,6 +21,10 @@ def load_models_lazily():
     global model, sc, cnn
     if interpreter is None:
         print("Loading models into memory for the first time...")
+        import joblib
+        import tensorflow.lite as tflite
+        from PIL import Image
+        import numpy as np
         model = joblib.load(open('models/model.joblib', 'rb'))
         sc = joblib.load(open('models/scaler.joblib', 'rb'))
         interpreter = tflite.Interpreter(model_path="models/plant_disease_model.tflite")
