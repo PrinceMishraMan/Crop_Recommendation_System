@@ -7,6 +7,7 @@ from pathlib import Path
 
 from RAG_Engine import generate_prescription
 
+# Setup Environment and App
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
 
@@ -14,17 +15,17 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Global variables for models
+# Global variables for ML models
 model = None
 sc = None
 interpreter = None
 
 def load_models_lazily():
+    """Loads heavy machine learning libraries only when the first request hits."""
     global model, sc, interpreter
     if interpreter is None:
-        print("Loading models into memory for the first time...")
+        print("Loading ML models and ai-edge-litert into memory...")
         import joblib
-        import numpy as np
         import ai_edge_litert.interpreter as tflite
         
         # Load Crop Recommendation Models
@@ -75,14 +76,16 @@ def get_live_weather(lat: str, lon: str) -> dict:
             print(f"[-] Weather API fallback error: {e}")
     return weather
 
+
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
-        import numpy as np # Local import since it's lazy-loaded globally
+        import numpy as np # Lazy load numpy
         
         nitrogen = request.form.get('nitrogen')
         phosphorus = request.form.get('phosphorus')
@@ -131,6 +134,7 @@ def predict():
         return render_template('index.html', prediction_text='Recommended Crop is: {}'.format(output))
     return render_template('index.html')
 
+
 @app.route('/disease', methods=['GET', 'POST'])
 def disease():
     if request.method == 'POST':
@@ -142,7 +146,7 @@ def disease():
         from PIL import Image
         import numpy as np
 
-        # 2. Save file
+        # 2. Save file locally
         img_file = request.files['image']
         filename = secure_filename(img_file.filename)
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -158,7 +162,7 @@ def disease():
             
         img_arr = np.expand_dims(img_arr, axis=0)
         
-        # 4. TFLite Inference
+        # 4. TFLite Inference using ai-edge-litert
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
         
@@ -202,6 +206,7 @@ def disease():
 
     return render_template('disease_pred.html')
 
+
 @app.route('/crop_pred')
 def crop():
     return render_template('crop_pred.html')
@@ -213,6 +218,7 @@ def pest():
 @app.route('/login')
 def login():
     return render_template('login.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)
