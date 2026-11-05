@@ -3,37 +3,40 @@ import requests
 import os
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+from pathlib import Path
 
 from RAG_Engine import generate_prescription
+
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
-
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-
+# Global variables for models
 model = None
 sc = None
 interpreter = None
+
 def load_models_lazily():
-    global model, sc, cnn
+    global model, sc, interpreter
     if interpreter is None:
         print("Loading models into memory for the first time...")
         import joblib
-        import tensorflow.lite as tflite
-        from PIL import Image
         import numpy as np
-        model = joblib.load(open('models/model.joblib', 'rb'))
-        sc = joblib.load(open('models/scaler.joblib', 'rb'))
-        interpreter = tflite.Interpreter(model_path="models/plant_disease_model.tflite")
+        import tflite_runtime.interpreter as tflite
+        
+        # Load Crop Recommendation Models
+        model = joblib.load(open(BASE_DIR / 'models/model.joblib', 'rb'))
+        sc = joblib.load(open(BASE_DIR / 'models/scaler.joblib', 'rb'))
+        
+        # Load TFLite Disease Model
+        interpreter = tflite.Interpreter(model_path=str(BASE_DIR / "models/plant_disease_model.tflite"))
         interpreter.allocate_tensors()
-        input_idx = interpreter.get_input_details()[0]['index']
-        output_idx = interpreter.get_output_details()[0]['index']
         print("Models loaded successfully!")
 
-class_names = [
+CLASS_NAMES = [
     'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy',
     'Blueberry___healthy', 'Cherry_(including_sour)___Powdery_mildew', 'Cherry_(including_sour)___healthy', 
     'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot', 'Corn_(maize)___Common_rust_', 
@@ -59,7 +62,6 @@ def parse_disease_prediction(raw_class: str):
     disease_clean = disease_part.replace("_", " ").strip()
     return crop_clean, disease_clean
 
-
 def get_live_weather(lat: str, lon: str) -> dict:
     weather = {"temp": 27.0, "humidity": 65, "condition": "Normal"}
     if lat and lon:
@@ -80,6 +82,8 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method == 'POST':
+        import numpy as np # Local import since it's lazy-loaded globally
+        
         nitrogen = request.form.get('nitrogen')
         phosphorus = request.form.get('phosphorus')
         potassium = request.form.get('potassium')
@@ -89,11 +93,11 @@ def predict():
         humidity = None
         ph = request.form.get('ph')
         rainfall = None
+        
         if lat and lon:
             try:
                 weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,precipitation"
                 weather_response = requests.get(weather_url).json()
-                
                 temperature = weather_response['current']['temperature_2m']
                 humidity = weather_response['current']['relative_humidity_2m']
                 rainfall = weather_response['current']['precipitation']
@@ -107,6 +111,9 @@ def predict():
             
             if not temperature or not humidity or not rainfall:
                 return render_template('index.html', prediction_text="Error: Missing weather/rainfall data. Please allow location access or type it in manually.")
+        
+        # Ensure models are loaded before predicting
+        load_models_lazily()
         
         int_features = [
             float(nitrogen), 
@@ -130,18 +137,35 @@ def disease():
         if 'image' not in request.files or request.files['image'].filename == '':
             return render_template('disease_pred.html', error_msg="Please upload a valid image.")
 
+        # 1. Load models & libraries lazily
         load_models_lazily()
+        from PIL import Image
+        import numpy as np
 
+        # 2. Save file
         img_file = request.files['image']
         filename = secure_filename(img_file.filename)
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         img_file.save(img_path)
 
-        img = image.load_img(img_path, target_size=(128, 128))
-        img_arr = image.img_to_array(img) / 255.0
+        # 3. Pure PIL/Numpy Image Processing (No Keras)
+        img = Image.open(img_path).resize((128, 128))
+        img_arr = np.array(img, dtype=np.float32) / 255.0
+        
+        # Drop alpha channel if image is RGBA (PNGs)
+        if img_arr.shape[-1] == 4:
+            img_arr = img_arr[..., :3]
+            
         img_arr = np.expand_dims(img_arr, axis=0)
         
-        predictions = cnn.predict(img_arr)
+        # 4. TFLite Inference
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        
+        interpreter.set_tensor(input_details[0]['index'], img_arr)
+        interpreter.invoke()
+        predictions = interpreter.get_tensor(output_details[0]['index'])
+        
         predicted_idx = np.argmax(predictions)
         confidence = float(predictions[0][predicted_idx])
         raw_predicted_class = CLASS_NAMES[predicted_idx]
@@ -192,7 +216,3 @@ def login():
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
