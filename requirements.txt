@@ -12,3 +12,4 @@ Werkzeug
 chromadb
 sentence-transformers
 groq
+google-genai
