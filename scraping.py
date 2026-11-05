@@ -14,7 +14,6 @@ HEADERS = {
     )
 }
 
-# Verified TNAU Crop Disease Index Pages
 CROP_INDEX_URLS = {
     "Tomato": "https://agritech.tnau.ac.in/crop_protection/crop_prot_crop%20diseases_veg_tomato.html",
     "Potato": "https://agritech.tnau.ac.in/crop_protection/crop_prot_crop%20diseases_veg_potato.html",
@@ -26,7 +25,6 @@ CROP_INDEX_URLS = {
     "Cotton": "https://agritech.tnau.ac.in/crop_protection/crop_prot_crop%20diseases_fibres_cotton.html"
 }
 
-# Blacklist of common header/footer text to discard
 NAV_BLACKLIST = {
     "home", "about us", "success stories", "farmers association", 
     "farmers' innovation", "farmers innovation", "publications", 
@@ -49,11 +47,10 @@ def scrape_disease_detail(crop: str, page_url: str, link_label: str) -> dict:
 
         soup = BeautifulSoup(res.content, "lxml")
 
-        # Remove header/footer tables or navigation divs if present
         for tag in soup.find_all(["nav", "footer", "header", "script", "style"]):
             tag.decompose()
 
-        # Extract title
+
         headers = soup.find_all(["h2", "h3", "h4", "strong", "b"])
         title = link_label
         for h in headers:
@@ -65,14 +62,12 @@ def scrape_disease_detail(crop: str, page_url: str, link_label: str) -> dict:
         full_text = soup.get_text(separator="\n")
         lines = [clean_text(l) for l in full_text.splitlines() if clean_text(l)]
         
-        # Filter out navigation breadcrumbs from the content
         filtered_lines = [
             line for line in lines 
             if not any(nav == line.lower() or f"{nav} |" in line.lower() for nav in NAV_BLACKLIST)
         ]
         content = " ".join(filtered_lines)
 
-        # Extract Symptoms section
         symptoms = ""
         symp_match = re.search(
             r'(?:Symptoms?|Field Diagnostic Symptoms?)(.*?)(?:Pathogen|Causal organism|Favourable condition|Survival|Mode of spread|Management|Integrated Disease Management|$)', 
@@ -82,7 +77,6 @@ def scrape_disease_detail(crop: str, page_url: str, link_label: str) -> dict:
         if symp_match:
             symptoms = clean_text(symp_match.group(1))
 
-        # Extract Management / Chemical Dosages section
         management = ""
         mgmt_match = re.search(
             r'(?:Management|Integrated Disease Management|Control measures)(.*?)(?:Source of Information|Acknowledgement|Content validator|Home|$)', 
@@ -92,10 +86,9 @@ def scrape_disease_detail(crop: str, page_url: str, link_label: str) -> dict:
         if mgmt_match:
             management = clean_text(mgmt_match.group(1))
         else:
-            # Fallback if no explicit management header is tagged
+
             management = content[:800]
 
-        # Discard empty/broken pages
         if len(management) < 25 and len(symptoms) < 25:
             return None
 
@@ -134,7 +127,6 @@ def run_scraper(output_file="tnau_knowledge.json"):
                 href = a["href"].strip()
                 label = clean_text(a.get_text())
 
-                # Strict Navigation Filter
                 if not label or len(label) < 3:
                     continue
                 if any(nav in label.lower() for nav in NAV_BLACKLIST):
