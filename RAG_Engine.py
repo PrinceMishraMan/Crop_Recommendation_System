@@ -1,33 +1,49 @@
 import os
-import chromadb
-from chromadb.utils import embedding_functions
 from groq import Groq
 from pathlib import Path
 from dotenv import load_dotenv
 
-DB_PATH = "./kisan_rag_db"
-client = chromadb.PersistentClient(path=DB_PATH)
-
-embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="all-MiniLM-L6-v2"
-)
-
-collection = client.get_collection(
-    name="agri_treatments",
-    embedding_function=embedding_fn
-)
-
+# Set up paths and lightweight APIs at the top level
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
 
 groq_api_key = os.getenv("GROQ_API_KEY")
-
 if not groq_api_key:
     raise ValueError(f"GROQ_API_KEY is None. Searched in: {BASE_DIR / '.env'}")
+
 groq_client = Groq(api_key=groq_api_key)
+
+# 1. Initialize globals for lazy loading
+chroma_client = None
+collection = None
+
+def load_chroma_lazily():
+    """Loads heavy vector DB and embedding models only when needed."""
+    global chroma_client, collection
+    if collection is None:
+        print("Lazy loading ChromaDB and embedding models...")
+        # 2. IMPORT HERE INSTEAD
+        import chromadb
+        from chromadb.utils import embedding_functions
+        
+        DB_PATH = str(BASE_DIR / "kisan_rag_db")
+        chroma_client = chromadb.PersistentClient(path=DB_PATH)
+        
+        embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
+        
+        collection = chroma_client.get_collection(
+            name="agri_treatments",
+            embedding_function=embedding_fn
+        )
+        print("ChromaDB loaded successfully!")
 
 
 def retrieve_disease_context(crop: str, disease: str, top_k: int = 2) -> str:
+    # 3. Call the lazy loader before querying
+    load_chroma_lazily()
+    
     search_query = f"{crop} {disease} fungicide chemical dosage organic control measures"
     
     try:
@@ -98,7 +114,7 @@ def generate_prescription(
             {"role": "user", "content": user_prompt}
         ],
         model="openai/gpt-oss-120b",
-        temperature=0.15  # Low temperature prevents hallucination
+        temperature=0.15
     )
 
     return response.choices[0].message.content
