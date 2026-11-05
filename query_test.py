@@ -1,4 +1,3 @@
-# test_rag_retrieval.py
 import chromadb
 from chromadb.utils import embedding_functions
 DB_PATH = "./kisan_rag_db"
@@ -52,8 +51,6 @@ if __name__ == "__main__":
         crop="Rice",
         query_text="Spindle-shaped lesions on leaves, organic and chemical control for blast"
     )
-
-    # Test Case 3: Potato Late Blight query
     test_query(
         crop="Potato",
         query_text="Late blight fungal infection high humidity treatment"
