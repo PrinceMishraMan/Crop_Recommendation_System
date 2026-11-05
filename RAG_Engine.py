@@ -3,45 +3,62 @@ from groq import Groq
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Set up paths and lightweight APIs at the top level
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
 
 groq_api_key = os.getenv("GROQ_API_KEY")
-if not groq_api_key:
-    raise ValueError(f"GROQ_API_KEY is None. Searched in: {BASE_DIR / '.env'}")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+if not groq_api_key or not gemini_api_key:
+    raise ValueError(f"Missing GROQ or GEMINI API keys. Searched in: {BASE_DIR / '.env'}")
 
 groq_client = Groq(api_key=groq_api_key)
 
-# 1. Initialize globals for lazy loading
+# Global variables for lazy loading
 chroma_client = None
 collection = None
 
 def load_chroma_lazily():
-    """Loads heavy vector DB and embedding models only when needed."""
+    """Loads ChromaDB and Gemini Embedding Function instantly without PyTorch."""
     global chroma_client, collection
     if collection is None:
-        print("Lazy loading ChromaDB and embedding models...")
-        # 2. IMPORT HERE INSTEAD
+        print("Lazy loading ChromaDB and Gemini Embedding Function...")
         import chromadb
-        from chromadb.utils import embedding_functions
+        from chromadb import Documents, EmbeddingFunction, Embeddings
+        from google import genai
+        from google.genai import types
         
+        # Define the custom embedding function matching your ingestor
+        class GeminiEmbeddingFunction(EmbeddingFunction):
+            def __init__(self, api_key):
+                self.client = genai.Client(api_key=api_key)
+            
+            def __call__(self, input: Documents) -> Embeddings:
+                embeddings = []
+                for text in input:
+                    response = self.client.models.embed_content(
+                        model='gemini-embedding-2',
+                        contents=text,
+                        config=types.EmbedContentConfig(output_dimensionality=768)
+                    )
+                    embeddings.append(response.embeddings[0].values)
+                return embeddings
+
         DB_PATH = str(BASE_DIR / "kisan_rag_db")
         chroma_client = chromadb.PersistentClient(path=DB_PATH)
         
-        embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="all-MiniLM-L6-v2"
-        )
+        gemini_ef = GeminiEmbeddingFunction(api_key=gemini_api_key)
         
         collection = chroma_client.get_collection(
             name="agri_treatments",
-            embedding_function=embedding_fn
+            embedding_function=gemini_ef
         )
-        print("ChromaDB loaded successfully!")
+        print("ChromaDB loaded successfully with Gemini!")
 
 
 def retrieve_disease_context(crop: str, disease: str, top_k: int = 2) -> str:
-    # 3. Call the lazy loader before querying
+    """Retrieve authentic TNAU treatment guidelines from ChromaDB."""
+    # Ensure ChromaDB is loaded before querying
     load_chroma_lazily()
     
     search_query = f"{crop} {disease} fungicide chemical dosage organic control measures"
@@ -56,6 +73,7 @@ def retrieve_disease_context(crop: str, disease: str, top_k: int = 2) -> str:
         
         docs = results.get("documents", [[]])[0]
         if not docs:
+            # Fallback without crop filter if nothing returned
             fallback_results = collection.query(
                 query_texts=[search_query],
                 n_results=top_k
@@ -75,6 +93,7 @@ def generate_prescription(
     weather: dict, 
     language: str = "English"
 ) -> str:
+    """Combines retrieved context + live weather into a structured farmer prescription."""
     
     context_docs = retrieve_disease_context(crop, disease)
 
@@ -114,7 +133,7 @@ def generate_prescription(
             {"role": "user", "content": user_prompt}
         ],
         model="openai/gpt-oss-120b",
-        temperature=0.15
+        temperature=0.15  # Low temperature prevents hallucination
     )
 
     return response.choices[0].message.content
