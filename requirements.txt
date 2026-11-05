@@ -9,6 +9,6 @@ Pillow
 python-dotenv
 Werkzeug
 chromadb
-sentence-transformers
 groq
 ai-edge-litert
+google-genai
